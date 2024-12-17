@@ -1,0 +1,79 @@
+body {
+    width: 300px;
+    height: 160px;
+    margin: 0;
+    padding: 0;
+
+    font-family: "Poppins", sans-serif;
+}
+
+h1 {
+    display: flex;
+    justify-content: center;
+
+    background-color: #dc1319;
+    color: #fff;
+    font-size: 20px;
+}
+
+.selectMode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#selectPins {
+    padding: 8px 12px;
+
+    border: 0;
+    border-radius: 8px;
+    background-color: #000;
+
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+#selectPins:hover {
+    background-color: #3d3d3d;
+}
+#deselectPins {
+    padding: 8px 12px;
+    margin-left: 16px;
+
+    border: 0;
+    border-radius: 8px;
+    background-color: #000;
+
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+#deselectPins:hover {
+    background-color: #3d3d3d;
+}
+
+.save {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+}
+#save {
+    padding: 4px 12px;
+
+    background-color: #dc1319;
+    color: #fff;
+
+    border: 0;
+    border-radius: 8px;
+
+    font-weight: bold;
+    font-size: 24px;
+
+    cursor: pointer;
+}
+#save:hover {
+    background-color: #e2565b;
+}

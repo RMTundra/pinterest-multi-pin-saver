@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "Pinterest Multi-Pin Saver",
+    "version": "1.0",
+    "description": "Select multiple pins and save them to a board on Pinterest.",
+    "permissions": ["scripting", "storage", "activeTab"],
+    "host_permissions": ["https://*.pinterest.com/*"],
+    "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+        "16": "imgs/pinterest-16.png",
+        "32": "imgs/pinterest-32.png",
+        "128": "imgs/pinterest-128.png"
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://*.pinterest.com/*", "https://*.pinterest.com/"],
+            "js": ["content.js"]
+        }
+    ]
+}

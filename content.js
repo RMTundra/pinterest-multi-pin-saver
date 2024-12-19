@@ -1,13 +1,15 @@
 let selectEnabled = false;
 let pinList = [];
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("Message received: ", message);
+if (sessionStorage.getItem("selectEnabled") === "true") {
+    deactivateMode();
+}
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "activateMode") {
         if (!selectEnabled) {
-            console.log("Select enabled");
             selectEnabled = true;
+            sessionStorage.setItem("selectEnabled", "true");
             activateLogger();
 
             showPopup("Select mode activated!");
@@ -17,15 +19,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     else if (message.action === "deactivateMode") {
         if (selectEnabled) {
-            console.log("Select deactivated");
-            selectEnabled = false;
-            disableLogger();
-
-            hidePopup();
+            deactivateMode();
 
             sendResponse({ status: "Select deactivated" });
-
-            pinList = [];
         }
     }
 
@@ -50,9 +46,9 @@ function activateLogger() {
 
             pinList.push(pinID);
 
-            console.log("Pin clicked");
-            console.log("Pin ID: ", pinID);
-            console.log("Pin Img Url: ", imgUrl);
+            console.log("Pin clicked"); // DEBUG
+            console.log("Pin ID: ", pinID); // DEBUG
+            console.log("Pin Img Url: ", imgUrl); // DEBUG
 
             event.stopPropagation();
         }
@@ -64,7 +60,6 @@ function activateLogger() {
 function disableLogger() {
     const container = document.querySelector(".masonryContainer");
     if (container && pinClickHandler) {
-        console.log("Removing event listener");
         container.removeEventListener("click", pinClickHandler, true);
         pinClickHandler = null;
     }
@@ -117,4 +112,12 @@ function hidePopup() {
     if (popupElement) {
         popupElement.remove();
     }
+}
+
+function deactivateMode() {
+    selectEnabled = false;
+    sessionStorage.removeItem("selectEnabled");
+    disableLogger();
+    hidePopup();
+    pinList = [];
 }

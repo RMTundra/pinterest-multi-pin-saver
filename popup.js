@@ -8,19 +8,25 @@ function initialButtonStates() {
     });
 }
 
-function websiteCheck() {
-    const website = ["https://*.pinterest.com/*", "https://*.pinterest.com/"];
-    return website.some((websites) => url.startsWith(websites)); 
+function isWebsiteCorrect(url) {
+    const websiteRegex = /^https:\/\/([\w-]+\.)?pinterest\.com(\/.*)?$/; // Matches all subdomains and paths on pinterest.com
+    return websiteRegex.test(url);
 }
 
 document.getElementById("selectPins").addEventListener("click", () => {
-    console.log("Clicked. Sending.");
-
     const activeBtn = document.getElementById("selectPins");
     const deactiveBtn = document.getElementById("deselectPins");
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { action: "activateMode" }, (response) => {
+        const currentTab = tabs[0];
+
+        if (!isWebsiteCorrect(currentTab.url)) {
+            console.warn("This feature is disabled on this website.");
+            alert("This function is not enabled on this website.");
+            return;
+        }
+
+        chrome.tabs.sendMessage(currentTab.id, { action: "activateMode" }, (response) => {
             if (chrome.runtime.lastError) {
                 console.error("Failed: ", chrome.runtime.lastError);
             }
@@ -32,21 +38,25 @@ document.getElementById("selectPins").addEventListener("click", () => {
                     selectPinsColor: "#adff2f",
                     deselectPinsColor: "#ff0038"
                 });
-
-                console.log("Done.");
             }
         });
     });
 });
 
 document.getElementById("deselectPins").addEventListener("click", () => {
-    console.log("Clicked. Sending.");
-
     const activeBtn = document.getElementById("selectPins");
     const deactiveBtn = document.getElementById("deselectPins");
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { action: "deactivateMode" }, (response) => {
+        const currentTab = tabs[0];
+
+        if (!isWebsiteCorrect(currentTab.url)) {
+            console.warn("This feature is disabled on this website.");
+            alert("This function is not enabled on this website.");
+            return;
+        }
+
+        chrome.tabs.sendMessage(currentTab.id, { action: "deactivateMode" }, (response) => {
             if (chrome.runtime.lastError) {
                 console.error("Failed: ", chrome.runtime.lastError);
             }
@@ -58,8 +68,6 @@ document.getElementById("deselectPins").addEventListener("click", () => {
                     selectPinsColor: "#000",
                     deselectPinsColor: "#000"
                 });
-
-                console.log("Done.");
             }
         });
     });

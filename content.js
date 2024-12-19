@@ -1,5 +1,6 @@
 let selectEnabled = false;
 let pinList = [];
+const checkedPins = new Map();
 
 if (sessionStorage.getItem("selectEnabled") === "true") {
     deactivateMode();
@@ -40,28 +41,55 @@ function activateLogger() {
 
         if (pinElement) {
             event.preventDefault();
+            event.stopPropagation();
 
             const pinID = pinElement.getAttribute("data-test-pin-id") || "No ID";
             const imgUrl = pinElement.querySelector("img")?.src || "No img url";
 
-            pinList.push(pinID);
+            if (checkedPins.has(pinID)) {
+                checkedPins.delete(pinID);
+                pinElement.style.backgroundColor = "";
+            }
+            else {
+                checkedPins.set(pinID, { pinID, imgUrl });
+                pinElement.style.backgroundColor = "#d3d3d3";
+            }
 
             console.log("Pin clicked"); // DEBUG
             console.log("Pin ID: ", pinID); // DEBUG
             console.log("Pin Img Url: ", imgUrl); // DEBUG
-
-            event.stopPropagation();
         }
     };
 
+    const observer = new MutationObserver(() => {
+        document.querySelectorAll(`div[data-test-id="pin"]`).forEach((pinElement) => {
+            const pinID = pinElement.getAttribute("data-test-pin-id") || "No ID";
+
+            if (checkedPins.has(pinID)) {
+                pinElement.style.backgroundColor = "#d3d3d3";
+            }
+            else {
+                pinElement.style.backgroundColor = "";
+            }
+        });
+    });
+
+    observer.observe(container, { childList: true, subtree: true });
     container.addEventListener("click", pinClickHandler, true);
 }
 
 function disableLogger() {
     const container = document.querySelector(".masonryContainer");
+    const pins = container.querySelectorAll(`div[data-test-id="pin"]`);
+
     if (container && pinClickHandler) {
         container.removeEventListener("click", pinClickHandler, true);
         pinClickHandler = null;
+
+        pins.forEach((pin) => {
+            let pinID = pin.getAttribute("data-test-pin-id");
+            checkedPins.delete(pinID);
+        })
     }
 }
 

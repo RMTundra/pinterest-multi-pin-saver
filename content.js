@@ -1,14 +1,9 @@
 let selectEnabled = false;
-let ACCESS_TOKEN = null;
 const checkedPins = new Map();
 
 if (sessionStorage.getItem("selectEnabled") === "true") {
     deactivateMode();
 }
-
-chrome.runtime.sendMessage({ action: "getAccessToken" }, (response) => {
-    ACCESS_TOKEN = response.accessToken;
-});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "activateMode") {
@@ -151,30 +146,4 @@ function deactivateMode() {
     sessionStorage.removeItem("selectEnabled");
     disableLogger();
     hidePopup();
-}
-
-// BOARD FETCH
-
-async function fetchBoard() {
-    if (!ACCESS_TOKEN) {
-        console.error("ACCESS TOKEN is not set");
-        return;
-    }
-
-    try {
-        const response = await fetch("https://api.pinterest.com/v5/boards", {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${ACCESS_TOKEN}`
-            }
-        });
-
-        if (!response.ok) { throw new Error("Failed to fetch boards"); }
-
-        const boards = await response.json();
-        console.log(boards.items);
-        return boards.items;
-    } catch (error) {
-        console.error("Error fetching boards: ", error);
-    }
 }

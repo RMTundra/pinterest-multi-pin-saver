@@ -3,8 +3,8 @@
     "name": "Pinterest Multi-Pin Saver",
     "version": "1.0",
     "description": "Select multiple pins and save them to a board on Pinterest.",
-    "permissions": ["scripting", "storage", "activeTab"],
-    "host_permissions": ["https://*.pinterest.com/*"],
+    "permissions": ["scripting", "storage", "activeTab", "identity"],
+    "host_permissions": ["https://*.pinterest.com/*", "https://api.pinterest.com/*", "http://localhost/*"],
     "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -21,5 +21,10 @@
             "matches": ["https://*.pinterest.com/*", "https://*.pinterest.com/"],
             "js": ["content.js"]
         }
-    ]
+    ],
+    "oauth2": {
+        "client_id": "1509733",
+        "scopes": ["read_public", "write_public"],
+        "redirect_uri": "http://localhost"
+    }
 }

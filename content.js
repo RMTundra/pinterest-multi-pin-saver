@@ -24,6 +24,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             sendResponse({ status: "Select deactivated" });
         }
     }
+    else if (message.action === "getSelectedPins") {
+        sendResponse(Array.from(checkedPins.values()));
+    }
 
     return true;
 });

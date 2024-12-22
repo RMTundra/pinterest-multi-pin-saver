@@ -13,6 +13,20 @@ function isWebsiteCorrect(url) {
     return websiteRegex.test(url);
 }
 
+async function getAccessToken() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(['access_token'], (result) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError.message);
+            } else if (result.access_token) {
+                resolve(result.access_token);
+            } else {
+                reject('Access token not found');
+            }
+        });
+    });
+}
+
 document.getElementById("selectPins").addEventListener("click", () => {
     const activeBtn = document.getElementById("selectPins");
     const deactiveBtn = document.getElementById("deselectPins");
@@ -72,5 +86,100 @@ document.getElementById("deselectPins").addEventListener("click", () => {
         });
     });
 });
+
+async function fetchBoards(accessToken) {
+    try {
+        const response = await fetch("https://api.pinterest.com/v5/boards", {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        });
+        if (!response.ok) throw new Error("Failed to fetch boards");
+
+        const data = await response.json();
+        return data.items;
+    } catch (error) {
+        console.error("Error fetching boards: ", error);
+        return [];
+    }
+}
+
+async function fetchSections(boardId, accessToken) {
+    try {
+        const response = await fetch(`https://api.pinterest.com/v5/boards/${boardId}/sections`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        if (!response.ok) throw new Error("Failed to fetch sections");
+
+        const data = await response.json();
+        return data.items;
+    } catch (error) {
+        console.error('Error fetching sections:', error);
+        return [];
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const boardDropdown = document.getElementById("boardSelector");
+    const sectionDropdown = document.getElementById("sectionSelector");
+
+    boardDropdown.innerHTML = "<option value=''>Loading boards...</option>";
+    sectionDropdown.innerHTML = "<option value=''>Loading sections...</option>";
+
+    populateBoardsDropdown();
+
+    async function populateBoardsDropdown() {
+        try {
+            const accessToken = await getAccessToken();
+            const boards = await fetchBoards(accessToken);
+
+            boardDropdown.innerHTML = "<option value=''>Select a board...</option>";
+
+            boards.forEach((board) => {
+                const option = document.createElement("option");
+                option.value = board.id;
+                option.textContent = board.name;
+                boardDropdown.appendChild(option);
+            })
+
+            boardDropdown.addEventListener("change", () => {
+                const selectedBoardId = boardDropdown.value;
+
+                if (selectedBoardId) {
+                    populateSectionsDropdown(selectedBoardId);
+                }
+                else {
+                    sectionDropdown.innerHTML = "<option value=''>Select a board first...</option>";
+                }
+            })
+        } catch (error) {
+            console.error("Error populating boards dropdown: ", error);
+            boardDropdown.innerHTML = "<option value=''>Failed to load boards</option>";
+            sectionDropdown.innerHTML = "<option value=''>Failed to load sections</option>";
+        }
+    }
+
+    async function populateSectionsDropdown(boardId) {
+        try {
+            const accessToken = await getAccessToken();
+            const sections = await fetchSections(boardId, accessToken);
+
+            sectionDropdown.innerHTML = "<option value=''>Select a section ...</option>";
+
+            sections.forEach((section) => {
+                const option = document.createElement("option");
+                option.value = section.id;
+                option.textContent = section.name;
+                sectionDropdown.appendChild(option);
+            })
+        } catch (error) {
+            console.error("Error populating sections dropdown:", error);
+            sectionDropdown.innerHTML = "<option value=''>Failed to load sections</option>";
+        }
+    }
+})
+
 
 initialButtonStates();

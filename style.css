@@ -1,6 +1,6 @@
 body {
     width: 300px;
-    height: 160px;
+    height: auto;
     margin: 0;
     padding: 0;
 
@@ -14,12 +14,20 @@ h1 {
     background-color: #dc1319;
     color: #fff;
     font-size: 20px;
+    margin: 0;
+    padding: 8px 0;
+}
+
+div {
+    display: flex;
+    justify-content: center;
 }
 
 .selectMode {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 8px 0;
 }
 #selectPins {
     padding: 8px 12px;
@@ -33,9 +41,6 @@ h1 {
     font-weight: 600;
 
     cursor: pointer;
-}
-#selectPins:hover {
-    background-color: #3d3d3d;
 }
 #deselectPins {
     padding: 8px 12px;
@@ -51,8 +56,43 @@ h1 {
 
     cursor: pointer;
 }
+#selectPins:hover,
 #deselectPins:hover {
     background-color: #3d3d3d;
+}
+
+.dropdown {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin: 8px 0;
+}
+
+.dropdown label {
+    margin-bottom: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+    text-align: center;
+}
+
+#boardSelector {
+    width: 90%;
+    padding: 8px;
+
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+
+    outline: none;
+    cursor: pointer;
+
+    background-color: #fff;
+}
+
+#boardSelector:focus {
+    border-color: #dc1319;
+    box-shadow: 0 0 4px rgba(220, 19, 25, 0.5);
 }
 
 .save {

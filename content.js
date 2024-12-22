@@ -6,29 +6,35 @@ if (sessionStorage.getItem("selectEnabled") === "true") {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "activateMode") {
-        if (!selectEnabled) {
-            selectEnabled = true;
-            sessionStorage.setItem("selectEnabled", "true");
-            activateLogger();
+    try {
+        if (message.action === "activateMode") {
+            if (!selectEnabled) {
+                selectEnabled = true;
+                sessionStorage.setItem("selectEnabled", "true");
+                activateLogger();
 
-            showPopup("Select mode activated!");
-
-            sendResponse({ status: "Select enabled" });
+                showPopup("Select mode activated!");
+                sendResponse({ status: "Select enabled" });
+            } else {
+                sendResponse({ status: "Already enabled" });
+            }
+        } else if (message.action === "deactivateMode") {
+            if (selectEnabled) {
+                deactivateMode();
+                sendResponse({ status: "Select deactivated" });
+            } else {
+                sendResponse({ status: "Already deactivated" });
+            }
+        } else if (message.action === "getSelectedPins") {
+            sendResponse(Array.from(checkedPins.values()));
+        } else {
+            sendResponse({ status: "Unknown action" });
         }
+    } catch (error) {
+        console.error("Error handling message:", error);
+        sendResponse({ status: "Error", message: error.message });
     }
-    else if (message.action === "deactivateMode") {
-        if (selectEnabled) {
-            deactivateMode();
-
-            sendResponse({ status: "Select deactivated" });
-        }
-    }
-    else if (message.action === "getSelectedPins") {
-        sendResponse(Array.from(checkedPins.values()));
-    }
-
-    return true;
+    return true; // Indicates an async response
 });
 
 function activateLogger() {

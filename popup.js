@@ -1,3 +1,5 @@
+let selectedBoardId, selectedSectionId;
+
 function initialButtonStates() {
     chrome.storage.local.get(["selectPinsColor", "deselectPinsColor"], (result) => {
         const activeBtn = document.getElementById("selectPins");
@@ -145,7 +147,8 @@ document.addEventListener("DOMContentLoaded", () => {
             })
 
             boardDropdown.addEventListener("change", () => {
-                const selectedBoardId = boardDropdown.value;
+                selectedBoardId = boardDropdown.value;
+                console.log(selectedBoardId);
 
                 if (selectedBoardId) {
                     populateSectionsDropdown(selectedBoardId);
@@ -174,6 +177,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 option.textContent = section.name;
                 sectionDropdown.appendChild(option);
             })
+
+            sectionDropdown.addEventListener("change", () => {
+                selectedSectionId = sectionDropdown.value;
+                console.log(selectedSectionId);
+            })
         } catch (error) {
             console.error("Error populating sections dropdown:", error);
             sectionDropdown.innerHTML = "<option value=''>Failed to load sections</option>";
@@ -181,5 +189,89 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 })
 
+document.addEventListener("DOMContentLoaded", () => {
+    const saveButton = document.getElementById("save");
+    if (saveButton) {
+        saveButton.addEventListener("click", async () => {
+            if (selectedBoardId && selectedSectionId) {
+                const boardId = selectedBoardId;
+                const sectionId = selectedSectionId;
+
+                try {
+                    const selectedPins = await getSelectedPins();
+
+                    if (selectedPins.length === 0) {
+                        alert("No pins selected to save");
+                        return;
+                    }
+
+                    const accessToken = await getAccessToken();
+
+                    for (const pin of selectedPins) {
+                        console.log(`Saving pin ${pin.pinID} to board ${selectedBoardId}, section ${selectedSectionId}`);
+                        await savePinToSection(pin.pinID, boardId, sectionId, accessToken);
+                    }
+
+                    alert("Pins successfully saved.");
+                } catch (error) {
+                    console.error("Error saving pins: ", error);
+                }
+            } else {
+                alert("Please select both board and section.");
+            }
+        });
+    } else {
+        console.error("Save button not found in the DOM.");
+    }
+});
+
+async function getSelectedPins() {
+    return new Promise((resolve) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { action: "getSelectedPins" }, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error("Error communicating with content script:", chrome.runtime.lastError.message);
+                } else if (response) {
+                    console.log("Selected pins:", response);
+                    resolve(response);
+                } else {
+                    console.warn("No response received from content script.");
+                }
+            });
+        });
+    });
+}
+
+async function savePinToSection(pinID, boardId, sectionId, accessToken) {
+    const url = `https://api.pinterest.com/v5/pins/${pinID}/save`;
+    const body = JSON.stringify({
+        board_id: boardId,
+        board_section_id: sectionId
+    })
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            },
+            body: body
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(`Failed to save pin ${pinID}: `, error);
+        }
+    } catch (error) {
+        if (error.json) {
+            const errorDetails = await error.json();
+            console.error(`Error saving pin ${pinID}: `, errorDetails);
+        } else {
+            console.error(`Error saving pin ${pinID}: `, error);
+        }
+        throw error;
+    }
+}
 
 initialButtonStates();

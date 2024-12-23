@@ -6,20 +6,20 @@
     "permissions": ["scripting", "storage", "activeTab", "identity"],
     "host_permissions": ["https://*.pinterest.com/*", "https://api.pinterest.com/*", "http://localhost/*"],
     "action": {
-    "default_popup": "popup.html",
+    "default_popup": "/main/popup.html",
     "default_icon": {
-        "16": "imgs/pinterest-16.png",
-        "32": "imgs/pinterest-32.png",
-        "128": "imgs/pinterest-128.png"
+        "16": "/src/imgs/pinterest-16.png",
+        "32": "/src/imgs/pinterest-32.png",
+        "128": "/src/imgs/pinterest-128.png"
         }
     },
     "background": {
-        "service_worker": "config.js"
+        "service_worker": "/main/config.js"
     },
     "content_scripts": [
         {
             "matches": ["https://*.pinterest.com/*", "https://*.pinterest.com/"],
-            "js": ["content.js"]
+            "js": ["/main/content.js"]
         }
     ],
     "oauth2": {

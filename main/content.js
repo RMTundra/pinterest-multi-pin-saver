@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.error("Error handling message:", error);
         sendResponse({ status: "Error", message: error.message });
     }
-    return true; // Indicates an async response
+    return true; 
 });
 
 function activateLogger() {
@@ -62,10 +62,6 @@ function activateLogger() {
                 checkedPins.set(pinID, { pinID, imgUrl });
                 pinElement.style.backgroundColor = "#d3d3d3";
             }
-
-            console.log("Pin clicked"); // DEBUG
-            console.log("Pin ID: ", pinID); // DEBUG
-            console.log("Pin Img Url: ", imgUrl); // DEBUG
         }
     };
 

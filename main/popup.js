@@ -1,14 +1,47 @@
 let selectedBoardId, selectedSectionId;
+let previousUrl = location.href;
 
-function initialButtonStates() {
+document.addEventListener("DOMContentLoaded", () => {
     chrome.storage.local.get(["selectPinsColor", "deselectPinsColor"], (result) => {
         const activeBtn = document.getElementById("selectPins");
         const deactiveBtn = document.getElementById("deselectPins");
 
+        if (sessionStorage.getItem("selectEnabled")) {
+            result.selectPinsColor = "#adff2f";
+            result.deselectPinsColor = "#ff0038";
+        }
+        else {
+            result.selectPinsColor = "#000";
+            result.deselectPinsColor = "#000";
+        }
+
         activeBtn.style.backgroundColor = result.selectPinsColor || "#000";
         deactiveBtn.style.backgroundColor = result.deselectPinsColor || "#000";
     });
-}
+
+    if (sessionStorage.getItem("is_reloaded")) {
+        deactivateButton();
+        
+        chrome.runtime.sendMessage({ action: "deactivateMode" });
+    }
+    
+    sessionStorage.setItem("is_reloaded", true);
+});
+
+window.addEventListener("beforeunload", () => {
+    deactivateButton();
+
+    chrome.runtime.sendMessage({ action: "deactivateMode" });
+});
+
+setInterval(() => {
+    if (location.href !== previousUrl) {
+        deactivateButton();
+
+        chrome.runtime.sendMessage({ action: "deactivateMode" });
+        previousUrl = location.href;
+    }
+}, 500);
 
 function isWebsiteCorrect(url) {
     const websiteRegex = /^https:\/\/([\w-]+\.)?pinterest\.com(\/.*)?$/; // Matches all subdomains and paths on pinterest.com
@@ -30,9 +63,6 @@ async function getAccessToken() {
 }
 
 document.getElementById("selectPins").addEventListener("click", () => {
-    const activeBtn = document.getElementById("selectPins");
-    const deactiveBtn = document.getElementById("deselectPins");
-
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         const currentTab = tabs[0];
 
@@ -47,22 +77,13 @@ document.getElementById("selectPins").addEventListener("click", () => {
                 console.error("Failed: ", chrome.runtime.lastError);
             }
             else {
-                activeBtn.style.backgroundColor = "#adff2f";
-                deactiveBtn.style.backgroundColor = "#ff0038";
-
-                chrome.storage.local.set({
-                    selectPinsColor: "#adff2f",
-                    deselectPinsColor: "#ff0038"
-                });
+                activateButton();
             }
         });
     });
 });
 
 document.getElementById("deselectPins").addEventListener("click", () => {
-    const activeBtn = document.getElementById("selectPins");
-    const deactiveBtn = document.getElementById("deselectPins");
-
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         const currentTab = tabs[0];
 
@@ -77,13 +98,7 @@ document.getElementById("deselectPins").addEventListener("click", () => {
                 console.error("Failed: ", chrome.runtime.lastError);
             }
             else {
-                activeBtn.style.backgroundColor = "#000";
-                deactiveBtn.style.backgroundColor = "#000";
-
-                chrome.storage.local.set({
-                    selectPinsColor: "#000",
-                    deselectPinsColor: "#000"
-                });
+                deactivateButton();
             }
         });
     });
@@ -191,9 +206,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     const saveButton = document.getElementById("save");
+
     if (saveButton) {
         saveButton.addEventListener("click", async () => {
-            if (selectedBoardId && selectedSectionId) {
+            if ((selectedBoardId && selectedSectionId) || (selectedSectionId == null)) {
                 const boardId = selectedBoardId;
                 const sectionId = selectedSectionId;
 
@@ -212,6 +228,19 @@ document.addEventListener("DOMContentLoaded", () => {
                         await savePinToSection(pin.pinID, boardId, sectionId, accessToken);
                     }
 
+                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                        const currentTab = tabs[0];
+
+                        chrome.tabs.sendMessage(currentTab.id, { action: "deactivateMode" }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                console.error("Failed: ", chrome.runtime.lastError);
+                            }
+                            else {
+                                deactivateButton();
+                            }
+                        });
+                    });
+
                     alert("Pins successfully saved.");
                 } catch (error) {
                     console.error("Error saving pins: ", error);
@@ -220,22 +249,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Please select both board and section.");
             }
         });
-    } else {
-        console.error("Save button not found in the DOM.");
-    }
+    } 
 });
 
 async function getSelectedPins() {
     return new Promise((resolve) => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, { action: "getSelectedPins" }, (response) => {
-                if (chrome.runtime.lastError) {
-                    console.error("Error communicating with content script:", chrome.runtime.lastError.message);
-                } else if (response) {
-                    console.log("Selected pins:", response);
+                if (response) {
                     resolve(response);
-                } else {
-                    console.warn("No response received from content script.");
                 }
             });
         });
@@ -274,4 +296,22 @@ async function savePinToSection(pinID, boardId, sectionId, accessToken) {
     }
 }
 
-initialButtonStates();
+function activateButton() {
+    const activeBtn = document.getElementById("selectPins");
+    const deactiveBtn = document.getElementById("deselectPins");
+
+    sessionStorage.setItem("selectEnabled", true);
+
+    activeBtn.style.backgroundColor = "#adff2f";
+    deactiveBtn.style.backgroundColor = "#ff0038";
+}
+
+function deactivateButton() {
+    const activeBtn = document.getElementById("selectPins");
+    const deactiveBtn = document.getElementById("deselectPins");
+
+    sessionStorage.getItem("selectEnabled", false);
+
+    activeBtn.style.backgroundColor = "#000";
+    deactiveBtn.style.backgroundColor = "#000";
+}

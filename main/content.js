@@ -1,30 +1,15 @@
-let selectEnabled = false;
 const checkedPins = new Map();
-
-if (sessionStorage.getItem("selectEnabled") === "true") {
-    deactivateMode();
-}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     try {
         if (message.action === "activateMode") {
-            if (!selectEnabled) {
-                selectEnabled = true;
-                sessionStorage.setItem("selectEnabled", "true");
-                activateLogger();
+            activateMode();
 
-                showPopup("Select mode activated!");
-                sendResponse({ status: "Select enabled" });
-            } else {
-                sendResponse({ status: "Already enabled" });
-            }
+            sendResponse({ status: "Select enabled" });
         } else if (message.action === "deactivateMode") {
-            if (selectEnabled) {
-                deactivateMode();
-                sendResponse({ status: "Select deactivated" });
-            } else {
-                sendResponse({ status: "Already deactivated" });
-            }
+            deactivateMode();
+
+            sendResponse({ status: "Select deactivated" });
         } else if (message.action === "getSelectedPins") {
             sendResponse(Array.from(checkedPins.values()));
         } else {
@@ -86,7 +71,7 @@ function disableLogger() {
     const container = document.querySelector(".masonryContainer");
     const pins = container.querySelectorAll(`div[data-test-id="pin"]`);
 
-    if (container && pinClickHandler) {
+    if (container) {
         container.removeEventListener("click", pinClickHandler, true);
         pinClickHandler = null;
 
@@ -146,9 +131,25 @@ function hidePopup() {
     }
 }
 
+function activateMode() {
+    sessionStorage.setItem("selectEnabled", "true");
+    activateLogger();
+
+    showPopup("Select mode activated!");
+}
+
 function deactivateMode() {
-    selectEnabled = false;
-    sessionStorage.removeItem("selectEnabled");
+    sessionStorage.setItem("selectEnabled", "false");
     disableLogger();
+
     hidePopup();
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (sessionStorage.getItem("selectEnabled")) {
+        activateMode();
+    }
+    else {
+        deactivateMode();
+    }
+})

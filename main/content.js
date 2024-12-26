@@ -53,12 +53,40 @@ function activateLogger() {
     const observer = new MutationObserver(() => {
         document.querySelectorAll(`div[data-test-id="pin"]`).forEach((pinElement) => {
             const pinID = pinElement.getAttribute("data-test-pin-id") || "No ID";
+            
+            let checkIcon = pinElement.querySelector(".check-icon");
 
             if (checkedPins.has(pinID)) {
                 pinElement.style.backgroundColor = "#d3d3d3";
+                
+                if (!checkIcon) {
+                    checkIcon = document.createElement("span");
+                    checkIcon.classList.add("check-icon");
+                    checkIcon.innerHTML = "✔";
+                    pinElement.appendChild(checkIcon);
+                }
+
+                checkIcon.style.position = "absolute";
+                checkIcon.style.display = "flex";
+                checkIcon.style.alignItems = "center";
+                checkIcon.style.justifyContent = "center";
+                checkIcon.style.width = "28px";
+                checkIcon.style.height = "28px";
+                checkIcon.style.top = "8px";
+                checkIcon.style.right = "8px";
+
+                checkIcon.style.backgroundColor = "#000";
+                checkIcon.style.color = "#00ff00";
+                checkIcon.style.borderRadius = "50%";
+                checkIcon.style.fontSize = "16px";
+                checkIcon.style.padding = "4px";
             }
             else {
                 pinElement.style.backgroundColor = "";
+
+                if (checkIcon) {
+                    checkIcon.remove();
+                }
             }
         });
     });

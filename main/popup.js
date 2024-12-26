@@ -34,6 +34,7 @@ window.addEventListener("beforeunload", () => {
     chrome.runtime.sendMessage({ action: "deactivateMode" });
 });
 
+
 setInterval(() => {
     if (location.href !== previousUrl) {
         deactivateButton();
@@ -42,6 +43,7 @@ setInterval(() => {
         previousUrl = location.href;
     }
 }, 500);
+
 
 function isWebsiteCorrect(url) {
     const websiteRegex = /^https:\/\/([\w-]+\.)?pinterest\.com(\/.*)?$/; // Matches all subdomains and paths on pinterest.com
@@ -184,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const accessToken = await getAccessToken();
             const sections = await fetchSections(boardId, accessToken);
 
-            sectionDropdown.innerHTML = "<option value=''>Select a section ...</option>";
+            sectionDropdown.innerHTML = "<option value=''>Default</option>";
 
             sections.forEach((section) => {
                 const option = document.createElement("option");

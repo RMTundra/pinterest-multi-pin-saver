@@ -1,24 +1,8 @@
 let selectedBoardId, selectedSectionId;
 let previousUrl = location.href;
 
+
 document.addEventListener("DOMContentLoaded", () => {
-    chrome.storage.local.get(["selectPinsColor", "deselectPinsColor"], (result) => {
-        const activeBtn = document.getElementById("selectPins");
-        const deactiveBtn = document.getElementById("deselectPins");
-
-        if (sessionStorage.getItem("selectEnabled")) {
-            result.selectPinsColor = "#adff2f";
-            result.deselectPinsColor = "#ff0038";
-        }
-        else {
-            result.selectPinsColor = "#000";
-            result.deselectPinsColor = "#000";
-        }
-
-        activeBtn.style.backgroundColor = result.selectPinsColor || "#000";
-        deactiveBtn.style.backgroundColor = result.deselectPinsColor || "#000";
-    });
-
     if (sessionStorage.getItem("is_reloaded")) {
         deactivateButton();
         
@@ -33,7 +17,6 @@ window.addEventListener("beforeunload", () => {
 
     chrome.runtime.sendMessage({ action: "deactivateMode" });
 });
-
 
 setInterval(() => {
     if (location.href !== previousUrl) {
@@ -50,6 +33,7 @@ function isWebsiteCorrect(url) {
     return websiteRegex.test(url);
 }
 
+
 async function getAccessToken() {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get(['access_token'], (result) => {
@@ -63,6 +47,7 @@ async function getAccessToken() {
         });
     });
 }
+
 
 document.getElementById("selectPins").addEventListener("click", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -106,6 +91,7 @@ document.getElementById("deselectPins").addEventListener("click", () => {
     });
 });
 
+
 async function fetchBoards(accessToken) {
     try {
         const response = await fetch("https://api.pinterest.com/v5/boards", {
@@ -139,6 +125,7 @@ async function fetchSections(boardId, accessToken) {
         return [];
     }
 }
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const boardDropdown = document.getElementById("boardSelector");
@@ -254,6 +241,19 @@ document.addEventListener("DOMContentLoaded", () => {
     } 
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const authorizeBtn = document.getElementById("authorize");
+    
+    authorizeBtn.addEventListener("click", () => {
+        chrome.storage.local.get(["auth"], (url) => {
+            const authURL = url.auth;
+            
+            console.log(authURL);
+            chrome.tabs.create({ url: authURL });
+        })
+    })
+})
+
 async function getSelectedPins() {
     return new Promise((resolve) => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -299,21 +299,16 @@ async function savePinToSection(pinID, boardId, sectionId, accessToken) {
 }
 
 function activateButton() {
-    const activeBtn = document.getElementById("selectPins");
-    const deactiveBtn = document.getElementById("deselectPins");
-
+    const deactivateBtn = document.getElementById("deselectPins");
+    
+    deactivateBtn.style.display = "flex";
     sessionStorage.setItem("selectEnabled", true);
-
-    activeBtn.style.backgroundColor = "#adff2f";
-    deactiveBtn.style.backgroundColor = "#ff0038";
 }
 
 function deactivateButton() {
-    const activeBtn = document.getElementById("selectPins");
-    const deactiveBtn = document.getElementById("deselectPins");
-
-    sessionStorage.getItem("selectEnabled", false);
-
-    activeBtn.style.backgroundColor = "#000";
-    deactiveBtn.style.backgroundColor = "#000";
+    const deactivateBtn = document.getElementById("deselectPins");
+    
+    deactivateBtn.style.display = "none";
+    sessionStorage.setItem("selectEnabled", false);
 }
+

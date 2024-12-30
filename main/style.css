@@ -43,6 +43,7 @@ div {
     cursor: pointer;
 }
 #deselectPins {
+    display: none;
     padding: 8px 12px;
     margin-left: 16px;
 
@@ -96,11 +97,13 @@ div {
     box-shadow: 0 0 4px rgba(220, 19, 25, 0.5);
 }
 
-.save {
+.buttons {
     display: flex;
+    align-items: center;
     justify-content: center;
     margin-top: 20px;
 }
+
 #save {
     padding: 4px 12px;
 
@@ -117,4 +120,29 @@ div {
 }
 #save:hover {
     background-color: #e2565b;
+}
+
+#authorize {
+    padding: 4px 12px;
+    margin-left: 4px;
+
+    background-color: #dc1319;
+    color: #fff;
+
+    border: 0;
+    border-radius: 8px;
+
+    font-weight: bold;
+    font-size: 24px;
+
+    cursor: pointer;
+}
+#authorize:hover {
+    background-color: #e2565b;
+}
+
+#guide {
+    text-align: center;
+    font-size: 12px;
+    max-width: 300px;
 }

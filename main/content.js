@@ -160,14 +160,12 @@ function hidePopup() {
 }
 
 function activateMode() {
-    sessionStorage.setItem("selectEnabled", "true");
     activateLogger();
 
     showPopup("Select mode activated!");
 }
 
 function deactivateMode() {
-    sessionStorage.setItem("selectEnabled", "false");
     disableLogger();
 
     hidePopup();
@@ -181,3 +179,4 @@ document.addEventListener("DOMContentLoaded", () => {
         deactivateMode();
     }
 })
+

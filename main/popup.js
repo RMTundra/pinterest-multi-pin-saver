@@ -134,7 +134,13 @@ document.addEventListener("DOMContentLoaded", () => {
     boardDropdown.innerHTML = "<option value=''>Loading boards...</option>";
     sectionDropdown.innerHTML = "<option value=''>Loading sections...</option>";
 
-    populateBoardsDropdown();
+    chrome.storage.local.get("isAuthorized", (result) => {
+        const isAuthorized = result.isAuthorized;
+
+        if (isAuthorized) {
+            populateBoardsDropdown();
+        }
+    });
 
     async function populateBoardsDropdown() {
         try {
@@ -243,7 +249,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     const authorizeBtn = document.getElementById("authorize");
-    
+    const authorizeGuide = document.getElementById("guide");
+
+    chrome.storage.local.get("isAuthorized", (result) => {
+        const isAuthorized = result.isAuthorized;
+
+        if (isAuthorized) {
+            authorizeBtn.style.display = "none";
+            authorizeGuide.style.display = "none";
+        } else {
+            authorizeBtn.style.display = "flex";
+            authorizeGuide.style.display = "flex";
+        }
+    });
+
     authorizeBtn.addEventListener("click", () => {
         chrome.storage.local.get(["auth"], (url) => {
             const authURL = url.auth;
@@ -299,16 +318,47 @@ async function savePinToSection(pinID, boardId, sectionId, accessToken) {
 }
 
 function activateButton() {
+    /*
     const deactivateBtn = document.getElementById("deselectPins");
-    
     deactivateBtn.style.display = "flex";
+    */
+    const selectDiv = document.getElementById("selectMode");
+    let deactivateBtn = selectDiv.querySelector(".deactivateBtn");
+
+    if (!deactivateBtn) {
+        deactivateBtn = document.createElement("button");
+        deactivateBtn.classList.add("deactivateBtn");
+        deactivateBtn.innerHTML = "Deactivate";
+        selectDiv.appendChild(deactivateBtn);
+    }
+
+    deactivateBtn.style.display = "flex";
+    deactivateBtn.style.padding = "8px 12px";
+    deactivateBtn.style.marginLeft = "16px";
+    deactivateBtn.style.border = "0";
+    deactivateBtn.style.borderRadius = "8px";
+    deactivateBtn.style.backgroundColor = "#000";
+    deactivateBtn.style.color = "#fff";
+    deactivateBtn.style.fontSize = "16px";
+    deactivateBtn.style.fontWeight = "600";
+    deactivateBtn.style.cursor = "pointer";
+
     sessionStorage.setItem("selectEnabled", true);
 }
 
 function deactivateButton() {
+    /*
     const deactivateBtn = document.getElementById("deselectPins");
-    
     deactivateBtn.style.display = "none";
+    */
+    
+    const selectDiv = document.getElementById("selectMode");
+    let deactivateBtn = selectDiv.querySelector(".deactivateBtn");
+
+    if (deactivateBtn) {
+        deactivateBtn.remove();
+    }
+
     sessionStorage.setItem("selectEnabled", false);
 }
 

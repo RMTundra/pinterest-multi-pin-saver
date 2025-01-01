@@ -41,11 +41,9 @@ function activateLogger() {
 
             if (checkedPins.has(pinID)) {
                 checkedPins.delete(pinID);
-                pinElement.style.backgroundColor = "";
             }
             else {
                 checkedPins.set(pinID, { pinID, imgUrl });
-                pinElement.style.backgroundColor = "#d3d3d3";
             }
         }
     };
@@ -57,8 +55,6 @@ function activateLogger() {
             let checkIcon = pinElement.querySelector(".check-icon");
 
             if (checkedPins.has(pinID)) {
-                pinElement.style.backgroundColor = "#d3d3d3";
-                
                 if (!checkIcon) {
                     checkIcon = document.createElement("span");
                     checkIcon.classList.add("check-icon");

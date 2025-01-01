@@ -42,7 +42,6 @@ div {
 
     cursor: pointer;
 }
-/*
 #deselectPins {
     display: none;
     padding: 8px 12px;
@@ -58,7 +57,10 @@ div {
 
     cursor: pointer;
 }
-*/
+#selectPins:hover,
+#deselectPins:hover {
+    background-color: #414141;
+}
 
 .dropdown {
     display: flex;

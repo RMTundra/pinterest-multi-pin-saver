@@ -76,6 +76,7 @@ function activateLogger() {
                 checkIcon.style.borderRadius = "50%";
                 checkIcon.style.fontSize = "16px";
                 checkIcon.style.padding = "4px";
+                checkIcon.style.zIndex = "99999";
             }
             else {
                 pinElement.style.backgroundColor = "";

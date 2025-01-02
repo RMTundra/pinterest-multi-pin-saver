@@ -263,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", () => {
     const authorizeBtn = document.getElementById("authorize");
     const authorizeGuide = document.getElementById("guide");
+    const authorizeGuide2 = document.getElementById("refresh");
 
     chrome.storage.local.get("isAuthorized", (result) => {
         const isAuthorized = result.isAuthorized;
@@ -270,9 +271,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isAuthorized) {
             authorizeBtn.style.display = "none";
             authorizeGuide.style.display = "none";
+            authorizeGuide2.style.display = "flex";
         } else {
             authorizeBtn.style.display = "flex";
             authorizeGuide.style.display = "flex";
+            authorizeGuide2.style.display = "none";
         }
     });
 

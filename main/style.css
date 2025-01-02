@@ -146,3 +146,10 @@ div {
     font-size: 12px;
     max-width: 300px;
 }
+
+#refresh {
+    display: none;
+    text-align: center;
+    font-size: 12px;
+    max-width: 290px;
+}

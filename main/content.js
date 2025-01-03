@@ -55,6 +55,9 @@ function activateLogger() {
             let checkIcon = pinElement.querySelector(".check-icon");
 
             if (checkedPins.has(pinID)) {
+                pinElement.style.backgroundColor = "#d4d4d4";
+                pinElement.style.borderRadius = "24px";
+
                 if (!checkIcon) {
                     checkIcon = document.createElement("span");
                     checkIcon.classList.add("check-icon");

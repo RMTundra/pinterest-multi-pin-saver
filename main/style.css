@@ -23,6 +23,11 @@ div {
     justify-content: center;
 }
 
+span {
+    display: flex;
+    justify-content: center;
+}
+
 .selectMode {
     display: flex;
     align-items: center;
@@ -144,12 +149,12 @@ div {
 #guide {
     text-align: center;
     font-size: 12px;
-    max-width: 300px;
+    width: 270px;
 }
 
 #refresh {
     display: none;
     text-align: center;
     font-size: 12px;
-    max-width: 290px;
+    width: 270px;
 }
